@@ -41,13 +41,15 @@ const createMovie = async (req, res, next) => {
     });
 };
 const getMovies = async (req, res, next) => {
-  try {
-    const movies = await movie.find({});
-    return res.send(movies);
-  } catch (err) {
-    return next(err);
-  }
+  const owner = req.user._id;
+  movie.find({ owner })
+    .then((item) => {
+      res.status(200).send(item);
+      return next(new NotFound('Нет сохранённых фильмов'));
+    })
+    .catch(next);
 };
+
 const deleteMovie = async (req, res, next) => {
   const removeMovie = () => {
     movie.findByIdAndDelete(req.params.movieId)

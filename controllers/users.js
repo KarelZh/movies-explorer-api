@@ -1,3 +1,4 @@
+const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const user = require('../models/user');
@@ -27,7 +28,7 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
   return user.findUserByCredentials(email, password)
     .then((item) => {
-      const token = jwt.sign({ _id: item._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: item._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       res.send({ token });
     }).catch((err) => {
       if (err.name === 'UnauthorizedError') {
